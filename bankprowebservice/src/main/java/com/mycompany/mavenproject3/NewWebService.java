@@ -37,10 +37,10 @@ public class NewWebService {
     public Boolean validateRekening(@WebParam(name = "Rekening") Integer Rekening) {
         //TODO write your implementation code here:
         Boolean found = false;
-        String dbUrl = "jdbc:mysql://localhost/bankprodb";
+        String dbUrl = "jdbc:mysql://localhost:3306/bankprodb";
         String dbClass = "com.mysql.jdbc.Driver";
         String query = "Select * FROM bankprodb.nasabah where nomornasabah = " + Rekening ;
-        String userName = "root", password = "";
+        String userName = "Azhar", password = "";
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Connection con = DriverManager.getConnection (dbUrl, userName, password);
@@ -71,9 +71,9 @@ public class NewWebService {
     @WebMethod(operationName = "Transfer")
     public Boolean Transfer(@WebParam(name = "RekeningPengirim") Integer RekeningPengirim, @WebParam(name = "RekeningPenerima") Integer RekeningPenerima, @WebParam(name = "Nominal") Integer Nominal) throws ClassNotFoundException {
         Boolean sukses = false;
-        String dbUrl = "jdbc:mysql://localhost/bankprodb";
+        String dbUrl = "jdbc:mysql://localhost:3306/bankprodb";
         String dbClass = "com.mysql.jdbc.Driver";
-        String userName = "root", password = "";
+        String userName = "Azhar", password = "";
         Date date = new Date();
         Boolean enoughBalance = false;
         Boolean existReceiver = false;
@@ -174,9 +174,9 @@ public class NewWebService {
      */
     @WebMethod(operationName = "addVirtualAccount")
     public Integer addVirtualAccount(@WebParam(name = "Rekening") Integer Rekening) {
-        String dbUrl = "jdbc:mysql://localhost/bankprodb";
+        String dbUrl = "jdbc:mysql://localhost:3306/bankprodb";
         String dbClass = "com.mysql.jdbc.Driver";
-        String userName = "root", password = "";
+        String userName = "Azhar", password = "";
         int randomVirtualAccount = 0;
         Random randomNumber = new Random();
         Boolean unique = false;
@@ -215,9 +215,9 @@ public class NewWebService {
      */
     @WebMethod(operationName = "checkTransaction")
     public Boolean checkTransaction(@WebParam(name = "rekening") Integer rekening, @WebParam(name = "nominal") Integer nominal, @WebParam(name = "startDate") String startDate, @WebParam(name = "finishDate") String finishDate) {
-        String dbUrl = "jdbc:mysql://localhost/bankprodb";
+        String dbUrl = "jdbc:mysql://localhost:3306/bankprodb";
         String dbClass = "com.mysql.jdbc.Driver";
-        String userName = "root", password = "";
+        String userName = "Azhar", password = "";
         Boolean found = false;
         long dateSecond = 0;
         long startDateinSecond = (new org.apache.xmlbeans.GDate(startDate)).getDate().getTime();
@@ -257,9 +257,9 @@ public class NewWebService {
     @WebMethod(operationName = "historyTransaction")
         
     public HistoryNasabah historyTransaction(@WebParam(name = "rekening") Integer rekening) {
-        String dbUrl = "jdbc:mysql://localhost/bankprodb";
+        String dbUrl = "jdbc:mysql://localhost:3306/bankprodb";
         String dbClass = "com.mysql.jdbc.Driver";
-        String userName = "root", password = "";
+        String userName = "Azhar", password = "";
         String strfound = "";
         long dateSecond = 0;
         HistoryNasabah history = null;

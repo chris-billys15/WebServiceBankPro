@@ -5,8 +5,6 @@
  */
 package com.mycompany.mavenproject3;
 
-import java.util.Date;
-import java.sql.Timestamp;
 
 /**
  *

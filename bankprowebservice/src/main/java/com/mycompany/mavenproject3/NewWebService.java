@@ -5,6 +5,8 @@
  */
 package com.mycompany.mavenproject3;
 
+import com.sun.tools.javac.comp.Check;
+
 import java.sql.Connection;
 import java.util.Date;
 import java.sql.DriverManager;
@@ -34,28 +36,43 @@ public class NewWebService {
      * Web service operation
      */
     @WebMethod(operationName = "validateRekening")
-    public Boolean validateRekening(@WebParam(name = "Rekening") Integer Rekening) {
+    public CheckAccount validateRekening(@WebParam(name = "Rekening") Integer Rekening) {
         //TODO write your implementation code here:
         Boolean found = false;
+        CheckAccount checkAccount = new CheckAccount();
         String dbUrl = "jdbc:mysql://localhost:3306/bankprodb";
         String dbClass = "com.mysql.jdbc.Driver";
-        String query = "Select * FROM bankprodb.nasabah where nomornasabah = " + Rekening ;
+        String queryRekening = "Select * FROM bankprodb.nasabah where nomornasabah = " + Rekening ;
+        String queryVirtualAcc = "Select * FROM bankprodb.virtualaccount where virtualaccount = " + Rekening ;
         String userName = "Azhar", password = "";
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Connection con = DriverManager.getConnection (dbUrl, userName, password);
             Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
-            while(rs.next() && !found){
-                int nomornasabah = rs.getInt("nomornasabah");
+            ResultSet rs1 = stmt.executeQuery(queryRekening);
+            while(rs1.next() && !found){
+                int nomornasabah = rs1.getInt("nomornasabah");
                 if(Rekening == nomornasabah){
                     found = true;
+                    checkAccount.setAccountExists(true);
+                    checkAccount.setVirtualAccount(false);
+                }
+            }
+            if(!found){
+                ResultSet rs2 = stmt.executeQuery(queryVirtualAcc);
+                while(rs2.next() && !found){
+                    int nomorVirtualAcc = rs2.getInt("nomornasabah");
+                    if(Rekening == nomorVirtualAcc){
+                        found = true;
+                        checkAccount.setAccountExists(true);
+                        checkAccount.setVirtualAccount(true);
+                    }
                 }
             }
         } catch (ClassNotFoundException | SQLException e){
             e.printStackTrace();
         } finally {
-            return found;
+            return checkAccount;
         }
         
     }
@@ -79,93 +96,98 @@ public class NewWebService {
         Boolean existReceiver = false;
         int saldoNasabah = 0;
         int saldoPenerima = 0;
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            Connection con = DriverManager.getConnection (dbUrl, userName, password);
-            Statement stmt = con.createStatement();
-            //Cek Saldo Pengirim
-            ResultSet rs = stmt.executeQuery("SELECT saldo FROM bankprodb.nasabah WHERE nomornasabah = " + RekeningPengirim);
-            while(rs.next() && !enoughBalance) {
-                saldoNasabah = rs.getInt("saldo");
-                if (saldoNasabah >= Nominal){
-                    enoughBalance = true;
-                }
-            }
-
-            //Cek Rekening Penerima kalau saldo mencukupi
-            if (enoughBalance && !existReceiver){
-                rs = stmt.executeQuery("Select nomornasabah FROM bankprodb.nasabah WHERE nomornasabah = " + RekeningPenerima);
-                while(rs.next() && !existReceiver) {
-                    int nomorNasabah = rs.getInt("nomornasabah");
-                    if (nomorNasabah == RekeningPenerima){
-                        existReceiver = true;
+        if(RekeningPenerima.equals(RekeningPengirim)){
+            return false;
+        }
+        else{
+            try {
+                Class.forName("com.mysql.jdbc.Driver");
+                Connection con = DriverManager.getConnection (dbUrl, userName, password);
+                Statement stmt = con.createStatement();
+                //Cek Saldo Pengirim
+                ResultSet rs = stmt.executeQuery("SELECT saldo FROM bankprodb.nasabah WHERE nomornasabah = " + RekeningPengirim);
+                while(rs.next() && !enoughBalance) {
+                    saldoNasabah = rs.getInt("saldo");
+                    if (saldoNasabah >= Nominal){
+                        enoughBalance = true;
                     }
                 }
 
-                //Kalau belum ketemu, cek di akun virtual
-                if (!existReceiver){
-                    rs = stmt.executeQuery("Select * FROM bankprodb.virtualaccount WHERE virtualaccount = " + RekeningPenerima);
+                //Cek Rekening Penerima kalau saldo mencukupi
+                if (enoughBalance && !existReceiver){
+                    rs = stmt.executeQuery("Select nomornasabah FROM bankprodb.nasabah WHERE nomornasabah = " + RekeningPenerima);
                     while(rs.next() && !existReceiver) {
-                        int nomorAkunVirtual = rs.getInt("virtualaccount");
                         int nomorNasabah = rs.getInt("nomornasabah");
-                        if (nomorAkunVirtual == RekeningPenerima){
+                        if (nomorNasabah == RekeningPenerima){
                             existReceiver = true;
-                            RekeningPenerima = nomorAkunVirtual;
+                        }
+                    }
+
+                    //Kalau belum ketemu, cek di akun virtual
+                    if (!existReceiver){
+                        rs = stmt.executeQuery("Select * FROM bankprodb.virtualaccount WHERE virtualaccount = " + RekeningPenerima);
+                        while(rs.next() && !existReceiver) {
+                            int nomorAkunVirtual = rs.getInt("virtualaccount");
+                            int nomorNasabah = rs.getInt("nomornasabah");
+                            if (nomorAkunVirtual == RekeningPenerima){
+                                existReceiver = true;
+                                RekeningPenerima = nomorAkunVirtual;
+                            }
                         }
                     }
                 }
-            }
-            
-            if (existReceiver && enoughBalance){
 
-                rs = stmt.executeQuery("SELECT * FROM bankprodb.nasabah WHERE nomornasabah = " + RekeningPenerima);
-                while (rs.next()){
-                    int nomorRekeningPenerima = rs.getInt("nomornasabah");
-                    if (nomorRekeningPenerima == RekeningPenerima){
-                        saldoPenerima = rs.getInt("saldo");
-                        saldoPenerima = saldoPenerima + Nominal;
+                if (existReceiver && enoughBalance){
+
+                    rs = stmt.executeQuery("SELECT * FROM bankprodb.nasabah WHERE nomornasabah = " + RekeningPenerima);
+                    while (rs.next()){
+                        int nomorRekeningPenerima = rs.getInt("nomornasabah");
+                        if (nomorRekeningPenerima == RekeningPenerima){
+                            saldoPenerima = rs.getInt("saldo");
+                            saldoPenerima = saldoPenerima + Nominal;
+                        }
                     }
-                }
-                
-                String Query = "UPDATE bankprodb.nasabah SET saldo = ? WHERE nomornasabah = ?";
-                PreparedStatement updatesaldopenerima = con.prepareStatement(Query);
-                updatesaldopenerima.setInt(1, saldoPenerima);
-                updatesaldopenerima.setInt(2, RekeningPenerima);
-                updatesaldopenerima.executeUpdate();
-                
-                rs = stmt.executeQuery("SELECT nomornasabah,saldo FROM bankprodb.nasabah WHERE nomornasabah = " + RekeningPengirim);
-                while (rs.next()){
-                    int nomorRekeningPengirim = rs.getInt("nomornasabah");
-                    if (nomorRekeningPengirim == RekeningPenerima){
-                        saldoNasabah = rs.getInt("saldo");
-                        saldoNasabah = saldoNasabah - Nominal;
-                        
+
+                    String Query = "UPDATE bankprodb.nasabah SET saldo = ? WHERE nomornasabah = ?";
+                    PreparedStatement updatesaldopenerima = con.prepareStatement(Query);
+                    updatesaldopenerima.setInt(1, saldoPenerima);
+                    updatesaldopenerima.setInt(2, RekeningPenerima);
+                    updatesaldopenerima.executeUpdate();
+
+                    rs = stmt.executeQuery("SELECT nomornasabah,saldo FROM bankprodb.nasabah WHERE nomornasabah = " + RekeningPengirim);
+                    while (rs.next()){
+                        int nomorRekeningPengirim = rs.getInt("nomornasabah");
+                        if (nomorRekeningPengirim == RekeningPenerima){
+                            saldoNasabah = rs.getInt("saldo");
+                            saldoNasabah = saldoNasabah - Nominal;
+
+                        }
                     }
+                    PreparedStatement updatesaldopengirim = con.prepareStatement(Query);
+                    updatesaldopengirim.setInt(1, saldoNasabah);
+                    updatesaldopengirim.setInt(2, RekeningPengirim);
+                    updatesaldopengirim.executeUpdate();
+
+                    String Query3 = "INSERT INTO bankprodb.transaksi (NomorNasabah, Waktu, Jenis, Jumlah, RekeningTerkait) VALUES (?,?,?,?,?), (?,?,?,?,?)" ;
+                    PreparedStatement inserttransaksi = con.prepareStatement(Query3);
+                    inserttransaksi.setInt(1, RekeningPengirim);
+                    inserttransaksi.setTimestamp(2, new java.sql.Timestamp(date.getTime()));
+                    inserttransaksi.setString(3,"Debit");
+                    inserttransaksi.setInt(4, Nominal);
+                    inserttransaksi.setInt(5,RekeningPenerima);
+                    inserttransaksi.setInt(6, RekeningPenerima);
+                    inserttransaksi.setTimestamp(7, new java.sql.Timestamp(date.getTime()));
+                    inserttransaksi.setString(8,"Kredit");
+                    inserttransaksi.setInt(9, Nominal);
+                    inserttransaksi.setInt(10,RekeningPengirim);
+                    int i = inserttransaksi.executeUpdate();
+                    sukses = true;
                 }
-                PreparedStatement updatesaldopengirim = con.prepareStatement(Query);
-                updatesaldopengirim.setInt(1, saldoNasabah);
-                updatesaldopengirim.setInt(2, RekeningPengirim);
-                updatesaldopengirim.executeUpdate();
-                
-                String Query3 = "INSERT INTO bankprodb.transaksi (NomorNasabah, Waktu, Jenis, Jumlah, RekeningTerkait) VALUES (?,?,?,?,?), (?,?,?,?,?)" ;
-                PreparedStatement inserttransaksi = con.prepareStatement(Query3);
-                inserttransaksi.setInt(1, RekeningPengirim);
-                inserttransaksi.setTimestamp(2, new java.sql.Timestamp(date.getTime()));
-                inserttransaksi.setString(3,"Debit");
-                inserttransaksi.setInt(4, Nominal);
-                inserttransaksi.setInt(5,RekeningPenerima);
-                inserttransaksi.setInt(6, RekeningPenerima);
-                inserttransaksi.setTimestamp(7, new java.sql.Timestamp(date.getTime()));
-                inserttransaksi.setString(8,"Kredit");
-                inserttransaksi.setInt(9, Nominal);
-                inserttransaksi.setInt(10,RekeningPengirim);
-                int i = inserttransaksi.executeUpdate();
-                sukses = true;
+            } catch (ClassNotFoundException | SQLException e){
+                e.printStackTrace();
+            } finally {
+                return sukses;
             }
-        } catch (ClassNotFoundException | SQLException e){
-            e.printStackTrace();
-        } finally {
-            return sukses;
         }
     }
 

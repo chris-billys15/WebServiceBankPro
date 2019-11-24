@@ -131,8 +131,11 @@ public class NewWebService {
                             int nomorNasabah = rs.getInt("nomornasabah");
                             if (nomorAkunVirtual == RekeningPenerima){
                                 existReceiver = true;
-//                                String Query = "SELECT"
-                                //PreparedStatement updatesaldopenerima2 = con.prepareStatement(Query);
+                                String Query = "UPDATE bankprodb.virtualaccount SET NomorPengirim = ? WHERE virtualaccount = ?";
+                                PreparedStatement updatenomorpengirim = con.prepareStatement(Query);
+                                updatenomorpengirim.setInt(1, RekeningPengirim);
+                                updatenomorpengirim.setInt(2, RekeningPenerima);
+                                updatenomorpengirim.executeUpdate();
                                 RekeningPenerima = nomorAkunVirtual;
                             }
                         }

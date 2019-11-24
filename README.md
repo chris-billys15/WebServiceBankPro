@@ -1,28 +1,28 @@
-# WS-Bank
+# Web Service Bank 
 
-REST<br>
-TheMovieDB - getMovie: 13517050<br>
-[WS-Transaksi] Membuat basis data transaksi : 13517047, 13517050, 13517062<br>
-[WS-Transaksi] Fungsi Menambah Transaksi Baru: 13517047, 13517050<br>
-[WS-Transaksi] Fungsi Mengubah Status "Success" atau "Cancelled" : 13517062,13517050<br>
-[WS-Transaksi] Mengembalikan seluruh data transaksi pembelian film seorang pengguna Engima : 13517047, 13517062<br>
-<br>
-SOAP<br>
-[WS-Bank] Membuat basis data bank : 13517047, 13517050, 13517062<br>
-[WS-Bank] Fungsi Validasi Nomor Rek: 13517047<br>
-[WS-Bank] Fungsi Memberikan data rekening seorang nasabah: 13517047<br>
-[WS-Bank] Fungsi Melakukan transaksi transfer: 13517050, 13517062<br>
-[WS-Bank] Fungsi membuat akun virtual untuk suatu nomor rekening: 13517062<br>
-[WS-Bank] Fungsi Mengecek ada atau tidak sebuah transaksi kredit dalam suatu rentang waktu: 13517050<br>
-<br>
-ReactJS<br>
-[Aplikasi Bank-pro] Login: 13517050<br>
-[Aplikasi Bank-pro] Melakukan transfer ke rekening lain: 13517047<br>
-[Aplikasi Bank-pro] Melihat Riwayat Transaksi: 13517062<br>
-<br>
-Perubahan Engima<br>
-Halaman Transaction History: 13517062, 13517047<br>
-Halaman Film Details: 13517062, 13517050<br>
-Halaman Buy Ticket: 13517062, 13517047<br>
-Halaman Home: 13517062, 13517050
-<br>
+Web service Bank adalah sebuah endpoint yang memiliki fungsi untuk : <br>
+1. Memvalidasi Rekening <br>
+2. Membuat Akun Virtual <br>
+3. Mentransfer Uang ke suatu akun <br>
+4. Mengecek history akun <br>
+5. Mengecek apakah ada sebuah transaksi dalam rentang waktu tertentu <br>
+
+
+# END POINT 
+
+http://100.26.43.243:8080/bankprowebservice-1.0-SNAPSHOT/NewWebService?wsdl
+
+#Basis Data yang Digunakan
+
+Basis data yang digunakan menggunakan mesin mysql dengan nama database bankprodb. <br>
+Database tersebut memiliki tabel seperti berikut :
+1. Tabel Nasabah : (nomornasabah int, namapengguna varchar(50), namabank varchar(50), saldo int )
+2. Tabel virtualaccount : (IDVirtualAccount int ,NomorNasabah int, virtualaccount int, nomorpengirim int)
+3. Tabel transaksi : (ID_Transaksi int, NomorNasabah int, waktu datetime, jenis varchar, jumlah int, rekeningterkait int)
+
+
+#Pembagian Tugas DPPL
+1. CI/CD : 1317062
+2. Linting : 13517050
+3. Eksplorasi Virtual Machine : 13517047
+

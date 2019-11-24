@@ -61,10 +61,10 @@ public class NewWebService {
             if(!found){
                 ResultSet rs2 = stmt.executeQuery(queryVirtualAcc);
                 while(rs2.next() && !found){
-                    int nomorVirtualAcc = rs2.getInt("nomornasabah");
+                    int nomorVirtualAcc = rs2.getInt("virtualaccount");
                     if(Rekening == nomorVirtualAcc){
                         found = true;
-                        checkAccount.setAccountExists(true);
+                        checkAccount.setAccountExists(false);
                         checkAccount.setVirtualAccount(true);
                     }
                 }
@@ -131,6 +131,8 @@ public class NewWebService {
                             int nomorNasabah = rs.getInt("nomornasabah");
                             if (nomorAkunVirtual == RekeningPenerima){
                                 existReceiver = true;
+//                                String Query = "SELECT"
+                                //PreparedStatement updatesaldopenerima2 = con.prepareStatement(Query);
                                 RekeningPenerima = nomorAkunVirtual;
                             }
                         }

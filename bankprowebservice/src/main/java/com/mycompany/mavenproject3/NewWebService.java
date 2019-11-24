@@ -136,7 +136,7 @@ public class NewWebService {
                                 updatenomorpengirim.setInt(1, RekeningPengirim);
                                 updatenomorpengirim.setInt(2, RekeningPenerima);
                                 updatenomorpengirim.executeUpdate();
-                                RekeningPenerima = nomorAkunVirtual;
+                                RekeningPenerima = nomorNasabah;
                             }
                         }
                     }
@@ -149,13 +149,12 @@ public class NewWebService {
                         int nomorRekeningPenerima = rs.getInt("nomornasabah");
                         if (nomorRekeningPenerima == RekeningPenerima){
                             saldoPenerima = rs.getInt("saldo");
-                            saldoPenerima = saldoPenerima + Nominal;
                         }
                     }
 
                     String Query = "UPDATE bankprodb.nasabah SET saldo = ? WHERE nomornasabah = ?";
                     PreparedStatement updatesaldopenerima = con.prepareStatement(Query);
-                    updatesaldopenerima.setInt(1, saldoPenerima);
+                    updatesaldopenerima.setInt(1, saldoPenerima + Nominal);
                     updatesaldopenerima.setInt(2, RekeningPenerima);
                     updatesaldopenerima.executeUpdate();
 
@@ -164,12 +163,11 @@ public class NewWebService {
                         int nomorRekeningPengirim = rs.getInt("nomornasabah");
                         if (nomorRekeningPengirim == RekeningPenerima){
                             saldoNasabah = rs.getInt("saldo");
-                            saldoNasabah = saldoNasabah - Nominal;
 
                         }
                     }
                     PreparedStatement updatesaldopengirim = con.prepareStatement(Query);
-                    updatesaldopengirim.setInt(1, saldoNasabah);
+                    updatesaldopengirim.setInt(1, saldoNasabah - Nominal);
                     updatesaldopengirim.setInt(2, RekeningPengirim);
                     updatesaldopengirim.executeUpdate();
 

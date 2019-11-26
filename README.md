@@ -10,7 +10,7 @@ Web service Bank adalah sebuah endpoint yang memiliki fungsi untuk : <br>
 
 # END POINT 
 
-http://100.26.43.243:8080/bankprowebservice-1.0-SNAPSHOT/NewWebService?wsdl
+http://100.26.43.243:8080/bankprowebservice-1.0-SNAPSHOT/NewWebService
 
 #Basis Data yang Digunakan
 
